@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data — never commit raw data or large files
+data/
+*.csv
+*.h5
+*.pkl
+*.npy
+*.npz
+
+# Model checkpoints — can be hundreds of MB
+checkpoints/
+*.pt
+*.pth
+
+# Generated samples — too many files, too large
+samples/
+*.png
+*.jpg
+*.gif
+
+# BUT keep the asset plots we explicitly save for README
+!assets/vanilla_gan/*.png
+!assets/conditional_gan/*.png
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Logs
+logs/
+runs/
+wandb/
+
+# Environment
+.env
+.env.local

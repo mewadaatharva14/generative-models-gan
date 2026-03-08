@@ -1,0 +1,33 @@
+
+
+data:
+  batch_size:    64         # number of images per training step
+  num_workers:   0          # set to 4 on Linux/GPU, keep 0 on Mac CPU
+  num_classes:   10         # CIFAR-10 has 10 classes
+  image_size:    32         # spatial dimension (32x32)
+  image_channels: 3         # RGB
+
+model:
+  latent_dim:    100        # size of the random noise vector z ~ N(0,1)
+  embedding_dim: 100        # label embedding size — matches latent_dim
+  base_channels: 256        # base feature map size for ConvTranspose2d blocks
+
+training:
+  epochs:            3      # increase to 50+ on GPU for quality results
+  lr:                0.0001 # lower than vanilla GAN — WGAN-GP needs stable critic
+  betas:                    # Adam momentum parameters
+    - 0.0                   # beta1=0.0 — no momentum, critical for WGAN stability
+    - 0.9                   # beta2
+  lambda_gp:         10     # gradient penalty weight — standard WGAN-GP value
+  critic_iterations: 2      # train critic N times per generator step
+                            # set to 5 on GPU (2 for CPU speed)
+  log_interval:      100    # print loss every N batches
+  save_interval:     1      # save generated image grid every N epochs
+
+paths:
+  checkpoint_dir: checkpoints/conditional_gan
+  samples_dir:    samples/conditional_gan
+  assets_dir:     assets/conditional_gan
+
+reproducibility:
+  random_seed: 42
