@@ -1,4 +1,4 @@
-# 🎨 Generative Models — Vanilla GAN & Conditional WGAN-GP
+# Generative Models — Vanilla GAN & Conditional WGAN-GP
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-EE4C2C?style=flat&logo=pytorch&logoColor=white)](https://pytorch.org/)
@@ -10,7 +10,7 @@
 
 ---
 
-## 📌 Overview
+## Overview
 
 This repository implements two progressively complex generative adversarial
 networks. The Vanilla GAN demonstrates the core GAN training loop — two
@@ -21,7 +21,7 @@ Both models are trained end-to-end with clean, configurable PyTorch code.
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 generative-models-gan/
@@ -58,16 +58,17 @@ generative-models-gan/
 
 ---
 
-## 🏗️ Models
+## Models
 
 ### 1 · Vanilla GAN — MNIST Digit Generation
-**Dataset:** MNIST — 60,000 grayscale images, 28×28  
+
+**Dataset:** MNIST — 60,000 grayscale images, 28×28
 **Task:** Generate realistic handwritten digits from random noise
 
 #### The GAN Framework
 
 | Network | Input | Output | Goal |
-|---|---|---|---|
+|---------|-------|--------|------|
 | Generator G | Noise z ~ N(0,1) | Fake image | Fool D |
 | Discriminator D | Real or fake image | P(real) ∈ (0,1) | Detect fakes |
 
@@ -82,7 +83,7 @@ $$\mathcal{L}_G = -\mathbb{E}[\log D(G(z))]$$
 #### Architecture
 
 | Layer | Operation | Output Shape |
-|---|---|---|
+|-------|-----------|-------------|
 | Input | Noise vector | (B, 100) |
 | Linear + BN + LeakyReLU | z → 256 | (B, 256) |
 | Linear + BN + LeakyReLU | 256 → 512 | (B, 512) |
@@ -90,26 +91,28 @@ $$\mathcal{L}_G = -\mathbb{E}[\log D(G(z))]$$
 | Linear + Tanh | 1024 → 784 | (B, 784) |
 | Reshape | 784 → image | (B, 1, 28, 28) |
 
-#### Results
+#### Training Setup
 
-| Metric | Value |
-|---|---|
-| Final D Loss | — |
-| Final G Loss | — |
-| Training Epochs | 5 (CPU) / 50+ (GPU) |
-
-> Run `python train.py --model vanilla` to fill this table.
+| Parameter | Value |
+|-----------|-------|
+| Loss | Binary Cross-Entropy |
+| Optimizer | Adam (lr=2e-4, β1=0.5, β2=0.999) |
+| Label smoothing | 0.9 (real labels) |
+| Batch size | 128 |
+| Recommended epochs | 50+ (GPU) / 5 (CPU quick test) |
+| Dataset | MNIST — auto-downloads on first run |
 
 ---
 
 ### 2 · Conditional WGAN-GP — CIFAR-10 Class-Controlled Generation
-**Dataset:** CIFAR-10 — 50,000 RGB images, 32×32, 10 classes  
+
+**Dataset:** CIFAR-10 — 50,000 RGB images, 32×32, 10 classes
 **Task:** Generate images conditioned on a class label
 
 #### Vanilla GAN → WGAN-GP
 
 | Property | Vanilla GAN | WGAN-GP |
-|---|---|---|
+|----------|------------|---------|
 | Loss | Binary Cross-Entropy | Wasserstein distance |
 | Output activation | Sigmoid → probability | None → raw score |
 | Lipschitz constraint | None | Gradient Penalty |
@@ -139,13 +142,13 @@ Generator:  [z (100) | embed(label) (100)] → concat (200) → Linear → ConvT
 Critic:      embed(label) → project to (1, 32, 32) → concat with image (3+1, 32, 32)
 ```
 
-This forces the critic to evaluate whether the **image matches its label**,
+This forces the critic to evaluate whether the image matches its label,
 not just whether it looks realistic in isolation.
 
 #### Architecture
 
 | Layer | Operation | Output Shape |
-|---|---|---|
+|-------|-----------|-------------|
 | Input | z + label embed concat | (B, 200) |
 | Linear + LeakyReLU | 200 → 256×4×4 | (B, 4096) |
 | Reshape | → feature map | (B, 256, 4, 4) |
@@ -153,28 +156,30 @@ not just whether it looks realistic in isolation.
 | ConvTranspose2d + BN + LeakyReLU | upsample ×2 | (B, 64, 16, 16) |
 | ConvTranspose2d + Tanh | upsample ×2 | (B, 3, 32, 32) |
 
-#### Results
+#### Training Setup
 
-| Metric | Value |
-|---|---|
-| Final Critic Loss | — |
-| Final Generator Loss | — |
-| Final Wasserstein Distance | — |
-| Training Epochs | 3 (CPU) / 50+ (GPU) |
-
-> Run `python train.py --model conditional` to fill this table.
+| Parameter | Value |
+|-----------|-------|
+| Loss | Wasserstein + Gradient Penalty (λ=10) |
+| Optimizer | Adam (β1=0.0, β2=0.9) |
+| Critic updates per G step | 5 |
+| Batch size | 64 |
+| Recommended epochs | 50+ (GPU) / 3 (CPU quick test) |
+| Dataset | CIFAR-10 — auto-downloads on first run |
 
 ---
 
-## ⚙️ Setup & Run
+## Setup & Run
 
 **1. Clone the repository**
+
 ```bash
 git clone https://github.com/mewadaatharva14/generative-models-gan.git
 cd generative-models-gan
 ```
 
 **2. Create virtual environment**
+
 ```bash
 python -m venv venv
 source venv/bin/activate        # Linux / Mac
@@ -182,11 +187,13 @@ source venv/bin/activate        # Linux / Mac
 ```
 
 **3. Install dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 **4. Train**
+
 ```bash
 # Vanilla GAN on MNIST
 python train.py --model vanilla
@@ -195,11 +202,12 @@ python train.py --model vanilla
 python train.py --model conditional
 ```
 
-Datasets download automatically on first run.  
-Loss curves and final image grids saved to `assets/` after training.  
+Datasets download automatically on first run.
+Loss curves and final image grids saved to `assets/` after training.
 Per-epoch samples saved to `samples/` (gitignored).
 
 **5. Generate images from a trained checkpoint**
+
 ```bash
 # Vanilla GAN — 64 random images
 python generate.py --model vanilla \
@@ -217,10 +225,10 @@ python generate.py --model conditional \
 
 ---
 
-## 📓 Notebooks
+## Notebooks
 
 | Notebook | Dataset | What it shows |
-|---|---|---|
+|----------|---------|---------------|
 | `01_vanilla_gan_mnist.ipynb` | MNIST | Model architecture · Loss curves · Generated grid · Epoch progression |
 | `02_conditional_wgan_gp_cifar10.ipynb` | CIFAR-10 | Loss curves · Per-class labeled grid · Epoch progression |
 
@@ -230,48 +238,48 @@ jupyter notebook notebooks/
 
 ---
 
-## 🔑 Key Implementation Details
+## Key Implementation Details
 
-**Why `fake.detach()` in the Discriminator step:**  
+**Why `fake.detach()` in the Discriminator step:**
 During D's backward pass, gradients should only update D's weights — not G's.
 Without `.detach()`, PyTorch would propagate gradients all the way through G
 during D's update, wastefully computing G's gradients when G is not being updated.
 
-**Why label smoothing 0.9 instead of 1.0:**  
+**Why label smoothing 0.9 instead of 1.0:**
 If D is trained with hard labels (1.0), it becomes overconfident — assigning
 near-zero probability to fake images. This gives G near-zero gradient, making
 it impossible to learn. Smoothing to 0.9 keeps D slightly uncertain and
 maintains a learning signal for G throughout training.
 
-**Why `beta1=0.0` in WGAN-GP Adam:**  
+**Why `beta1=0.0` in WGAN-GP Adam:**
 Standard Adam uses `beta1=0.9` — momentum from past gradients. In WGAN-GP,
 the critic's gradient direction changes frequently as the real/fake distributions
 evolve. Momentum from stale gradients destabilizes the Wasserstein estimate.
 `beta1=0.0` removes momentum entirely, keeping critic updates responsive.
 
-**Why `create_graph=True` in gradient penalty:**  
+**Why `create_graph=True` in gradient penalty:**
 The gradient penalty is computed from gradients of the critic w.r.t.
 interpolated inputs. When the penalty is itself differentiated during the
 critic's backward pass, PyTorch needs a second-order gradient. `create_graph=True`
 keeps the computation graph alive for this second differentiation.
 
-**Why SpectralNorm on Critic layers:**  
+**Why SpectralNorm on Critic layers:**
 SpectralNorm divides each weight matrix by its largest singular value,
 bounding the Lipschitz constant of each layer. This works alongside the
 gradient penalty to enforce the 1-Lipschitz constraint required for
 stable Wasserstein distance estimation.
 
-**Why `drop_last=True` in CIFAR-10 DataLoader:**  
+**Why `drop_last=True` in CIFAR-10 DataLoader:**
 The gradient penalty computes gradients w.r.t. interpolated images using
 `torch.autograd.grad`. This requires a consistent batch size. A partial
 last batch would cause shape mismatches in the interpolation step.
 
 ---
 
-## 📚 References
+## References
 
 | Resource | Link |
-|---|---|
+|----------|------|
 | Original GAN Paper | [Goodfellow et al. 2014](https://arxiv.org/abs/1406.2661) |
 | WGAN Paper | [Arjovsky et al. 2017](https://arxiv.org/abs/1701.07875) |
 | WGAN-GP Paper | [Gulrajani et al. 2017](https://arxiv.org/abs/1704.00028) |
@@ -281,7 +289,7 @@ last batch would cause shape mismatches in the interpolation step.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
 
