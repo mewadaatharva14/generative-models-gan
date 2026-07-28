@@ -1,0 +1,31 @@
+
+data:
+  batch_size:   64          # number of images per training step
+  num_workers:  0           # set to 4 on Linux/GPU, keep 0 on Mac CPU
+
+model:
+  latent_dim:   100         # size of the random noise vector z ~ N(0,1)
+  hidden_dims:              # Generator hidden layer sizes (small → large)
+    - 256
+    - 512
+    - 1024
+  image_dim:    784         # 28 x 28 flattened — input to Discriminator
+  image_channels: 1         # grayscale
+
+training:
+  epochs:         5         # increase to 50+ on GPU for quality results
+  lr:             0.0002    # learning rate for both G and D
+  betas:                    # Adam momentum parameters
+    - 0.5                   # beta1 — lower than default (0.9) for GAN stability
+    - 0.999                 # beta2
+  label_smoothing: 0.9      # real labels = 0.9 not 1.0 — prevents D overconfidence
+  log_interval:   200       # print loss every N batches
+  save_interval:  1         # save generated image grid every N epochs
+
+paths:
+  checkpoint_dir: checkpoints/vanilla_gan
+  samples_dir:    samples/vanilla_gan
+  assets_dir:     assets/vanilla_gan
+
+reproducibility:
+  random_seed: 42
